@@ -4,14 +4,20 @@ Record of the development environment state, for tracking changes over time.
 
 ## 2026-09-01
 
-| Item       | Value            |
-| ---------- | ---------------- |
-| PowerShell | 7.6.5            |
-| Python     | 3.12.10          |
-| pip        | 25.0.1           |
-| Git        | 2.55.0.windows.3 |
-| VS Code    | 1.135.0 (x64)    |
+### Global
 
-### Notes
+| Item       | Value   |
+| ---------- | ------- |
+| VS Code    | 1.135.0 |
+| Git        | 2.55.0  |
+| PowerShell | 7.6.5   |
+| Python     | 3.12.10 |
+| pip        | 26.2.1  |
+| setuptools | 84.0.0  |
+| wheel      | 0.48.0  |
 
-- No Python packages installed globally (`pip list` empty); project has no venv yet.
+### Project venv
+
+| Item       | Value  |
+| ---------- | ------ |
+| matplotlib | 3.11.1 |
