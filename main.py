@@ -3,27 +3,6 @@ import os
 import matplotlib.pyplot as plt
 from collections import deque
 
-nutzer_eingabe = input("Geben Sie bitte den Zielpunkt ein (ost_1, ost_2, nord_1, nord_2, nord_west_1, west_1, west_2, sued_west):__ ")
-print(nutzer_eingabe)
-
-print("Aktueller Ordner:")
-print(os.getcwd())
-
-print("\nDateien in diesem Ordner:")
-print(os.listdir())
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-try:
-    karte = plt.imread(os.path.join(script_dir, "Grundriss_mit_Knotenpunkten.png"))
-except FileNotFoundError:
-    print("Fehler: Kartenbild nicht gefunden.")
-    raise SystemExit(1)
-
-plt.imshow(karte)
-plt.axis("off")
-plt.show()
-
-
 startpunkt = (675, 400)
 
 knotenpunkte = {
@@ -114,18 +93,44 @@ def find_path(graph, start, goal):
     return None  # Kein Pfad gefunden
 
 
-# Graph bauen
-graph = build_graph(verbindungen)
+def main():
+    nutzer_eingabe = input("Geben Sie bitte den Zielpunkt ein (ost_1, ost_2, nord_1, nord_2, nord_west_1, west_1, west_2, sued_west):__ ")
+    print(nutzer_eingabe)
 
-# Nutzer-Eingabe nehmen
-ziel = nutzer_eingabe.strip()
+    print("Aktueller Ordner:")
+    print(os.getcwd())
 
-if ziel not in checkpoints:
-    print(f"Fehler: '{ziel}' ist kein gültiger Zielpunkt.")
-    raise SystemExit(1)
+    print("\nDateien in diesem Ordner:")
+    print(os.listdir())
 
-# Pfad finden
-weg = find_path(graph, "startpunkt", ziel)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    try:
+        karte = plt.imread(os.path.join(script_dir, "Grundriss_mit_Knotenpunkten.png"))
+    except FileNotFoundError:
+        print("Fehler: Kartenbild nicht gefunden.")
+        raise SystemExit(1)
 
-print(f"Pfad: {weg}")
+    plt.imshow(karte)
+    plt.axis("off")
+    plt.show()
+
+    # Graph bauen
+    graph = build_graph(verbindungen)
+
+    # Nutzer-Eingabe nehmen
+    ziel = nutzer_eingabe.strip()
+
+    if ziel not in checkpoints:
+        print(f"Fehler: '{ziel}' ist kein gültiger Zielpunkt.")
+        raise SystemExit(1)
+
+    # Pfad finden
+    weg = find_path(graph, "startpunkt", ziel)
+
+    print(f"Pfad: {weg}")
+
+
+if __name__ == "__main__":
+    main()
+
 
