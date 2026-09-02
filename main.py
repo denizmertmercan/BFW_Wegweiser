@@ -12,7 +12,8 @@ print(os.getcwd())
 print("\nDateien in diesem Ordner:")
 print(os.listdir())
 
-karte = plt.imread("E:\TN_Daten\Schmitz\Code_Projekts\Wegweiser_Projekt\Grundriss_mit_Knotenpunkten.png")
+script_dir = os.path.dirname(os.path.abspath(__file__))
+karte = plt.imread(os.path.join(script_dir, "Grundriss_mit_Knotenpunkten.png"))
 
 plt.imshow(karte)
 plt.axis("off")
