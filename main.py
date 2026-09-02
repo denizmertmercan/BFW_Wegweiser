@@ -13,7 +13,11 @@ print("\nDateien in diesem Ordner:")
 print(os.listdir())
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-karte = plt.imread(os.path.join(script_dir, "Grundriss_mit_Knotenpunkten.png"))
+try:
+    karte = plt.imread(os.path.join(script_dir, "Grundriss_mit_Knotenpunkten.png"))
+except FileNotFoundError:
+    print("Fehler: Kartenbild nicht gefunden.")
+    raise SystemExit(1)
 
 plt.imshow(karte)
 plt.axis("off")
