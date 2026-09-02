@@ -120,6 +120,10 @@ graph = build_graph(verbindungen)
 # Nutzer-Eingabe nehmen
 ziel = nutzer_eingabe.strip()
 
+if ziel not in checkpoints:
+    print(f"Fehler: '{ziel}' ist kein gültiger Zielpunkt.")
+    raise SystemExit(1)
+
 # Pfad finden
 weg = find_path(graph, "startpunkt", ziel)
 
