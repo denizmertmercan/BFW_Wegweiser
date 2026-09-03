@@ -3,9 +3,9 @@ import os
 import matplotlib.pyplot as plt
 from collections import deque
 
-startpunkt = (675, 400)
+start_point = (675, 400)
 
-knotenpunkte = {
+nodes = {
     
     "knoten_1": (680, 318),#nach osten oder knoten_2
     "knoten_2": (556, 314),#nach norden oder westen
@@ -30,42 +30,42 @@ checkpoints = {
 
 }
 
-verbindungen = {
+connections = {
     
-    "verbindung1": ["startpunkt", "knoten_1"],
+    "connection1": ["startpunkt", "knoten_1"],
 
-    "verbindung2": ["knoten_1", "ost_1"],
-    "verbindung3": ["ost_1", "ost_2"],
+    "connection2": ["knoten_1", "ost_1"],
+    "connection3": ["ost_1", "ost_2"],
 
-    "verbindung4": ["knoten_1", "knoten_2"],
-    "verbindung5": ["knoten_2", "knoten_3"],
-    "verbindung6": ["knoten_3", "nord_1"],
-    "verbindung7": ["knoten_3", "nord_2"],
+    "connection4": ["knoten_1", "knoten_2"],
+    "connection5": ["knoten_2", "knoten_3"],
+    "connection6": ["knoten_3", "nord_1"],
+    "connection7": ["knoten_3", "nord_2"],
 
-    "verbindung8": ["knoten_2", "knoten_4"],
-    "verbindung9": ["knoten_4", "nord_west_1"],
-    "verbindung10": ["knoten_4", "west_1"],
-    "verbindung11": ["knoten_4", "sued_west"],
+    "connection8": ["knoten_2", "knoten_4"],
+    "connection9": ["knoten_4", "nord_west_1"],
+    "connection10": ["knoten_4", "west_1"],
+    "connection11": ["knoten_4", "sued_west"],
 
-    "verbindung12": ["west_1", "west_2"]
+    "connection12": ["west_1", "west_2"]
 
 }
 
-# 1. Baue aus verbindungen eine Adjazenzliste
-def build_graph(verbindungen):
+# 1. Baue aus connections eine Adjazenzliste
+def build_graph(connections):
     graph = {}
-    for verbindung in verbindungen.values():
-        punkt_a = verbindung[0]
-        punkt_b = verbindung[1]
+    for connection in connections.values():
+        point_a = connection[0]
+        point_b = connection[1]
         
         # Beide Richtungen hinzufügen (weil Wege bidirektional sind)
-        if punkt_a not in graph:
-            graph[punkt_a] = []
-        if punkt_b not in graph:
-            graph[punkt_b] = []
+        if point_a not in graph:
+            graph[point_a] = []
+        if point_b not in graph:
+            graph[point_b] = []
         
-        graph[punkt_a].append(punkt_b)
-        graph[punkt_b].append(punkt_a)
+        graph[point_a].append(point_b)
+        graph[point_b].append(point_a)
         
 
     
@@ -94,8 +94,8 @@ def find_path(graph, start, goal):
 
 
 def main():
-    nutzer_eingabe = input("Geben Sie bitte den Zielpunkt ein (ost_1, ost_2, nord_1, nord_2, nord_west_1, west_1, west_2, sued_west):__ ")
-    print(nutzer_eingabe)
+    user_input = input("Geben Sie bitte den Zielpunkt ein (ost_1, ost_2, nord_1, nord_2, nord_west_1, west_1, west_2, sued_west):__ ")
+    print(user_input)
 
     print("Aktueller Ordner:")
     print(os.getcwd())
@@ -105,29 +105,29 @@ def main():
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     try:
-        karte = plt.imread(os.path.join(script_dir, "Grundriss_mit_Knotenpunkten.png"))
+        map_image = plt.imread(os.path.join(script_dir, "Grundriss_mit_Knotenpunkten.png"))
     except FileNotFoundError:
         print("Fehler: Kartenbild nicht gefunden.")
         raise SystemExit(1)
 
-    plt.imshow(karte)
+    plt.imshow(map_image)
     plt.axis("off")
     plt.show()
 
     # Graph bauen
-    graph = build_graph(verbindungen)
+    graph = build_graph(connections)
 
     # Nutzer-Eingabe nehmen
-    ziel = nutzer_eingabe.strip()
+    target = user_input.strip()
 
-    if ziel not in checkpoints:
-        print(f"Fehler: '{ziel}' ist kein gültiger Zielpunkt.")
+    if target not in checkpoints:
+        print(f"Fehler: '{target}' ist kein gültiger Zielpunkt.")
         raise SystemExit(1)
 
     # Pfad finden
-    weg = find_path(graph, "startpunkt", ziel)
+    path = find_path(graph, "startpunkt", target)
 
-    print(f"Pfad: {weg}")
+    print(f"Pfad: {path}")
 
 
 if __name__ == "__main__":
