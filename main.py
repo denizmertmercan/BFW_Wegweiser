@@ -93,13 +93,6 @@ def find_path(graph, start, goal):
 
 def main():
     user_input = input("Geben Sie bitte den Zielpunkt ein (ost_1, ost_2, nord_1, nord_2, nord_west_1, west_1, west_2, sued_west):__ ")
-    print(user_input)
-
-    print("Aktueller Ordner:")
-    print(os.getcwd())
-
-    print("\nDateien in diesem Ordner:")
-    print(os.listdir())
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     try:
