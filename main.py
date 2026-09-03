@@ -73,8 +73,6 @@ def build_graph(connections):
     
 # 2. Suche den Pfad (BFS = Breitensuche)
 def find_path(graph, start, goal):
-    from collections import deque
-    
     visited = set()
     queue = deque([(start, [start])])
     visited.add(start)
