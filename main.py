@@ -52,7 +52,7 @@ connections = {
 }
 
 # 1. Baue aus connections eine Adjazenzliste
-def build_graph(connections):
+def build_graph(connections: dict[str, list[str]]):
     graph = {}
     for connection in connections.values():
         point_a = connection[0]
@@ -72,7 +72,7 @@ def build_graph(connections):
     return graph
     
 # 2. Suche den Pfad (BFS = Breitensuche)
-def find_path(graph, start, goal):
+def find_path(graph: dict[str, list[str]], start: str, goal: str):
     visited = set()
     queue = deque([(start, [start])])
     visited.add(start)
