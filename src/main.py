@@ -134,26 +134,36 @@ def compile_routing_data() -> dict:
     }
 
 
-def export_data(output_path: str | None = None) -> str:
-    """Exportiere die kompilierten Daten in eine statische JSON-Datei."""
-    if output_path is None:
+def export_data(output_dir: str | None = None) -> tuple[str, str]:
+    """Exportiere die kompilierten Daten als JSON-Datei und als JS-Skript."""
+    if output_dir is None:
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        output_path = os.path.join(os.path.dirname(base_dir), "web", "data.json")
+        output_dir = os.path.join(os.path.dirname(base_dir), "web")
+    elif os.path.isfile(output_dir) or output_dir.endswith(".json"):
+        output_dir = os.path.dirname(output_dir)
 
     data = compile_routing_data()
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
+    os.makedirs(output_dir, exist_ok=True)
+
+    json_path = os.path.join(output_dir, "data.json")
+    with open(json_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-    return output_path
+    js_path = os.path.join(output_dir, "data.js")
+    with open(js_path, "w", encoding="utf-8") as f:
+        f.write("window.ROUTING_DATA = ")
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write(";\n")
+
+    return json_path, js_path
 
 
 # ------------------------------------------------
 # 5. Hauptprogramm
 # ------------------------------------------------
 def main():
-    output_path = export_data()
-    print(f"Routing-Daten erfolgreich exportiert nach: {output_path}")
+    json_path, js_path = export_data()
+    print(f"Routing-Daten erfolgreich exportiert nach:\n  {json_path}\n  {js_path}")
 
 
 if __name__ == "__main__":

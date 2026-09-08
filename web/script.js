@@ -11,6 +11,13 @@ let destinations = new Set();
 let activeSuggestion = -1;
 
 async function loadRoutingData() {
+    if (window.ROUTING_DATA) {
+        appData = window.ROUTING_DATA;
+        destinationOptions = appData.destinations || [];
+        destinations = new Set(destinationOptions);
+        return;
+    }
+
     try {
         const response = await fetch("data.json");
         if (!response.ok) {

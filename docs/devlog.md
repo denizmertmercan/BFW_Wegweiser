@@ -5,6 +5,34 @@ messages with slightly more context. Each entry is headed by timestamp and
 contributor initials. Entries don't map 1:1 to commits. Ordered most recent
 first. Covers changes made after forking; upstream history predates this log.
 
+## 2026-09-08 23:55 - DM
+
+Added direct local file execution support by exporting routing data as a
+JavaScript asset alongside the JSON artifact, resolving browser CORS
+restrictions when opening the client via local file URIs (`file:///`).
+
+During browser testing, opening [web/index.html](web/index.html) directly
+from the filesystem caused Chrome and Edge to block `fetch("data.json")`
+under strict local same-origin policies, triggering an error message in the
+status panel. While serving through `python -m http.server -d web 8000`
+functioned as expected, requiring a running HTTP process complicates
+offline kiosk deployment scenarios.
+
+To support both execution modes:
+
+- In [src/main.py](src/main.py), updated `export_data()` to write both
+  [web/data.json](web/data.json) and a companion [web/data.js](web/data.js)
+  assigning data to `window.ROUTING_DATA`.
+- In [web/index.html](web/index.html), added `<script src="data.js" defer></script>`
+  prior to [web/script.js](web/script.js).
+- In [web/script.js](web/script.js), updated `loadRoutingData()` to check for
+  `window.ROUTING_DATA` first for immediate synchronous initialization,
+  falling back to `fetch("data.json")` when served over HTTP.
+
+This enables opening [web/index.html](web/index.html) directly via double-click
+in Explorer without local server dependencies while retaining standard JSON
+contract compatibility.
+
 ## 2026-09-08 23:31 - DM
 
 Decoupled the routing pipeline into an offline Python data compiler and a
