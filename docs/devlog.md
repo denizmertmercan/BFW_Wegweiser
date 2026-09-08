@@ -5,6 +5,74 @@ messages with slightly more context. Each entry is headed by timestamp and
 contributor initials. Entries don't map 1:1 to commits. Ordered most recent
 first. Covers changes made after forking; upstream history predates this log.
 
+## 2026-09-08 23:31 - DM
+
+Decoupled the routing pipeline into an offline Python data compiler and a
+static browser visualizer, implementing the client-server separation
+without requiring an active HTTP server process.
+
+In [src/main.py](src/main.py), removed `matplotlib` and image loading
+routines (`load_map()`, `draw_path()`) along with interactive console
+prompts. Added `compile_routing_data()` and `export_data()` to precalculate
+all routes from `startpunkt` to checkpoints and serialize coordinates,
+destinations, and route paths directly into [web/data.json](web/data.json).
+
+In [web/script.js](web/script.js), removed hardcoded network tables
+(`connections`, `points`, `destinations`) and the client-side BFS
+`findPath()` implementation, which previously appeared to exhibit a directed-edge
+traversal bug. Added `loadRoutingData()` to asynchronously fetch
+[web/data.json](web/data.json) on startup and resolve paths via constant-time
+lookup (`appData.routes[destination]`), binding coordinates directly
+to the SVG route overlay.
+
+In [web/index.html](web/index.html), updated the floor plan image reference to
+[web/assets/Grundriss_mit_Knotenpunkten.png](web/assets/Grundriss_mit_Knotenpunkten.png),
+ensuring the static client remains self-contained. In [src/test_main.py](src/test_main.py),
+removed headless matplotlib backend configuration and added
+`test_compile_routing_data_structure` to verify the compiled data output.
+
+Commits: `0d298b3`
+
+## 2026-09-08 23:15 - DM
+
+Reorganized the repository into a symmetrical two-tier layout separating
+offline Python tooling from static web assets.
+
+Moved [src/main.py](src/main.py) and [src/test_main.py](src/test_main.py)
+into [src/](src/). Relocated the map asset into
+[web/assets/Grundriss_mit_Knotenpunkten.png](web/assets/Grundriss_mit_Knotenpunkten.png)
+so static hosting environments may serve the site without parent directory traversal.
+Imported baseline frontend files ([web/index.html](web/index.html),
+[web/script.js](web/script.js), [web/style.css](web/style.css)) from the
+original author's repository into [web/](web/) as a starting point for the
+client interface.
+
+Added [docs/adr_directory_structure.md](docs/adr_directory_structure.md)
+evaluating repository layout options (such as [src/](src/) and [web/](web/)
+versus builder and viewer pairings), documenting the choice of [src/](src/)
+and [web/](web/) for standard Python tooling and static host compatibility.
+Added [docs/current_state.md](docs/current_state.md) to record the active baseline
+and next milestones. Added an initial [README.md](README.md) describing the
+two-tier architecture, directory structure, and local execution instructions.
+
+Commits: `0aa6e6d`
+
+## 2026-09-08 21:23 - DM
+
+Documented a temporary branch synchronization strategy in
+[docs/temp_branch_strategy.md](docs/temp_branch_strategy.md) to coordinate
+work across multiple development machines.
+
+Because the secondary machine holds unpushed local commits on `main`
+(including architectural decision records), pushing new work directly to
+`origin/main` from this machine would likely cause branch divergence.
+Established the procedure to isolate the script-splitting changes on a
+temporary `script-split` branch, rebase onto local `main` on the secondary
+machine, fast-forward merge, and delete `script-split` to preserve a clean,
+linear history. Initialized the `script-split` branch under this workflow.
+
+Commits: `9c3fecb`
+
 ## 2026-09-03 09:19 - DM
 
 Added type hints to `build_graph`/`find_path` parameters — the minimum

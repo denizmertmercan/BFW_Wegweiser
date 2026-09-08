@@ -5,53 +5,26 @@ const formStatus = document.querySelector("#form-status");
 const routeLine = document.querySelector("#route-line");
 const routePoints = document.querySelector("#route-points");
 
-const start = "startpunkt";
-const connections = [
-    ["startpunkt", "knoten_1"],
-    ["knoten_1", "ost_1"],
-    ["ost_1", "ost_2"],
-    ["knoten_1", "knoten_2"],
-    ["knoten_2", "knoten_nord"],
-    ["knoten_nord", "nord_1"],
-    ["knoten_nord", "nord_2"],
-    ["knoten_2", "knoten_3"],
-    ["knoten_3", "knoten_4"],
-    ["knoten_4", "nord_west_1"],
-    ["knoten_4", "west_1"],
-    ["knoten_4", "sued_west"],
-    ["west_1", "west_2"],
-];
-
-const points = {
-    startpunkt: [675, 400],
-    knoten_1: [680, 318],
-    knoten_2: [556, 314],
-    knoten_3: [488, 354],
-    knoten_4: [327, 349],
-    knoten_nord: [624, 185],
-    ost_1: [769, 330],
-    ost_2: [880, 340],
-    nord_1: [511, 185],
-    nord_2: [777, 176],
-    nord_west_1: [163, 82],
-    west_1: [165, 349],
-    west_2: [96, 348],
-    sued_west: [255, 485],
-};
-
-const destinations = new Set([
-    "ost_1",
-    "ost_2",
-    "nord_1",
-    "nord_2",
-    "nord_west_1",
-    "west_1",
-    "west_2",
-    "sued_west",
-]);
-
-const destinationOptions = [...destinations];
+let appData = null;
+let destinationOptions = [];
+let destinations = new Set();
 let activeSuggestion = -1;
+
+async function loadRoutingData() {
+    try {
+        const response = await fetch("data.json");
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        appData = await response.json();
+        destinationOptions = appData.destinations || [];
+        destinations = new Set(destinationOptions);
+    } catch (error) {
+        formStatus.textContent = "Fehler beim Laden der Routing-Daten.";
+        formStatus.setAttribute("data-error", "true");
+        console.error("Routing data load failed:", error);
+    }
+}
 
 function closeSuggestions() {
     suggestions.classList.remove("is-open");
@@ -117,32 +90,14 @@ document.addEventListener("click", (event) => {
     }
 });
 
-function findPath(goal) {
-    const queue = [[start, [start]]];
-    const visited = new Set([start]);
-
-    while (queue.length > 0) {
-        const [current, path] = queue.shift();
-
-        if (current === goal) {
-            return path;
-        }
-
-        for (const [from, to] of connections) {
-            if (from === current && !visited.has(to)) {
-                visited.add(to);
-                queue.push([to, [...path, to]]);
-            }
-        }
+function drawPath(path) {
+    if (!appData || !appData.points) {
+        return;
     }
 
-    return null;
-}
-
-function drawPath(path) {
     routeLine.setAttribute(
         "points",
-        path.map((point) => points[point].join(",")).join(" ")
+        path.map((point) => appData.points[point].join(",")).join(" ")
     );
     routeLine.classList.remove("route-visible");
     void routeLine.offsetWidth;
@@ -151,8 +106,8 @@ function drawPath(path) {
 
     for (const [index, point] of path.entries()) {
         const marker = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        marker.setAttribute("cx", points[point][0]);
-        marker.setAttribute("cy", points[point][1]);
+        marker.setAttribute("cx", appData.points[point][0]);
+        marker.setAttribute("cy", appData.points[point][1]);
         marker.setAttribute("r", index === 0 || index === path.length - 1 ? "9" : "5");
         marker.setAttribute("class", index === path.length - 1 ? "route-point destination-point" : "route-point");
         routePoints.appendChild(marker);
@@ -161,6 +116,12 @@ function drawPath(path) {
 
 form.addEventListener("submit", (event) => {
     event.preventDefault();
+
+    if (!appData) {
+        formStatus.textContent = "Routing-Daten werden noch geladen. Bitte warten.";
+        formStatus.setAttribute("data-error", "true");
+        return;
+    }
 
     const destination = destinationInput.value.trim().toLowerCase();
 
@@ -173,7 +134,7 @@ form.addEventListener("submit", (event) => {
         return;
     }
 
-    const path = findPath(destination);
+    const path = appData.routes ? appData.routes[destination] : null;
 
     if (!path) {
         formStatus.textContent = "Für dieses Ziel wurde kein Weg gefunden.";
@@ -185,3 +146,6 @@ form.addEventListener("submit", (event) => {
     formStatus.removeAttribute("data-error");
     formStatus.textContent = `Weg zu „${destination}“ angezeigt.`;
 });
+
+loadRoutingData();
+

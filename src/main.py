@@ -1,8 +1,7 @@
 
+import json
 import os
 from collections import deque
-
-import matplotlib.pyplot as plt
 
 
 # -----------------------------
@@ -110,80 +109,51 @@ def find_path(graph: dict[str, list[str]], start: str, goal: str):
 
 
 # ------------------------------------------------
-# 4. Karte laden
+# 4. Daten kompilieren und als JSON exportieren
 # ------------------------------------------------
-def load_map():
-    """Lade das Bild des Grundrisses aus dem aktuellen Verzeichnis."""
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    image_path = os.path.join(base_dir, "Grundriss_mit_Knotenpunkten.png")
-    try:
-        return plt.imread(image_path)
-    except FileNotFoundError:
-        print("Fehler: Kartenbild nicht gefunden.")
-        raise SystemExit(1)
+def compile_routing_data() -> dict:
+    """Kompiliere Koordinaten, Ziele und vorberechnete Pfade."""
+    graph = build_graph(connections)
+    point_coordinates = {
+        "startpunkt": list(start_point),
+        **{name: list(coords) for name, coords in nodes.items()},
+        **{name: list(coords) for name, coords in checkpoints.items()},
+    }
+    destinations = sorted(checkpoints.keys())
+    routes = {}
+    for target in destinations:
+        path = find_path(graph, "startpunkt", target)
+        if path is not None:
+            routes[target] = path
+
+    return {
+        "start": "startpunkt",
+        "points": point_coordinates,
+        "destinations": destinations,
+        "routes": routes,
+    }
 
 
-# ------------------------------------------------
-# 5. Pfad zeichnen
-# ------------------------------------------------
-def draw_path(map_image, path: list[str], point_coordinates: dict[str, tuple[int, int]]):
-    """Zeichne den gefundenen Weg auf die Karte."""
-    if not path or len(path) < 2:
-        return
+def export_data(output_path: str | None = None) -> str:
+    """Exportiere die kompilierten Daten in eine statische JSON-Datei."""
+    if output_path is None:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        output_path = os.path.join(os.path.dirname(base_dir), "web", "data.json")
 
-    coords = []
-    for point in path:
-        # Nur Punkte berücksichtigen, die auch Koordinaten haben.
-        if point in point_coordinates:
-            coords.append(point_coordinates[point])
+    data = compile_routing_data()
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
-    if len(coords) < 2:
-        return
-
-    xs = [x for x, _ in coords]
-    ys = [y for _, y in coords]
-
-    plt.figure(figsize=(10, 8))
-    plt.imshow(map_image)
-    plt.plot(xs, ys, color="red", linewidth=2.5)
-    plt.scatter(xs, ys, color="red", zorder=3)
-    plt.axis("off")
-    plt.show()
+    return output_path
 
 
 # ------------------------------------------------
-# 6. Hauptprogramm
+# 5. Hauptprogramm
 # ------------------------------------------------
 def main():
-    user_input = input("Geben Sie bitte den Zielpunkt ein (ost_1, ost_2, nord_1, nord_2, nord_west_1, west_1, west_2, sued_west):__ ")
-
-    # Lade den Hintergrundplan als Bild.
-    map_image = load_map()
-
-    # Graph bauen
-    graph = build_graph(connections)
-
-    # Nutzer-Eingabe nehmen
-    target = user_input.strip()
-
-    if target not in checkpoints:
-        print(f"Fehler: '{target}' ist kein gültiger Zielpunkt.")
-        raise SystemExit(1)
-
-    # Pfad finden
-    path = find_path(graph, "startpunkt", target)
-
-    # Kombiniere die Koordinaten aller bekannten Punkte in ein Dictionary.
-    point_coordinates = {**nodes, **checkpoints, "startpunkt": start_point}
-
-    print(f"Pfad: {path}")
-
-    if path is None:
-        print("Kein Pfad gefunden.")
-        return
-
-    # Zeichne den Pfad auf die geladene Karte.
-    draw_path(map_image, path, point_coordinates)
+    output_path = export_data()
+    print(f"Routing-Daten erfolgreich exportiert nach: {output_path}")
 
 
 if __name__ == "__main__":
