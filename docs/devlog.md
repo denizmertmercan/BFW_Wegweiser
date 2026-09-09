@@ -5,6 +5,36 @@ messages with slightly more context. Each entry is headed by timestamp and
 contributor initials. Entries don't map 1:1 to commits. Ordered most recent
 first. Covers changes made after forking; upstream history predates this log.
 
+## 2026-09-09 11:35 - DM
+
+Synchronized multi-machine development by integrating the architectural
+decision record on `main` and cleanly rebasing the script-split pipeline.
+
+Before pulling the decoupled `src/` and `web/` layout implemented on the
+secondary machine, [docs/adr.md](docs/adr.md) was finalized and committed
+to `main`. The record formally establishes the project's core architecture:
+Python acts as an offline graph compiler exporting precomputed static data,
+while the browser client operates strictly as an algorithm-free presentation
+layer, with usage analytics deferred and decoupled.
+
+To integrate the new implementation without creating divergent branches or
+merge bubbles, we completed Phase 2 of
+[docs/temp_branch_strategy.md](docs/temp_branch_strategy.md):
+
+- Committed [docs/adr.md](docs/adr.md) directly to `main`.
+- Rebased the remote `script-split` feature branch onto updated `main`,
+  placing the repository restructuring and compiler export cleanly on top of
+  the ADR.
+- Fast-forward merged `main` to the rebased branch tip and pushed to `origin`.
+- Pruned the temporary `script-split` branch reference both locally and from
+  the remote.
+
+This leaves `main` with a strictly linear history, unifying the architectural
+rationale with the split repository structure ready for algorithmic upgrades
+(such as Dijkstra and cost modeling).
+
+Commits: `1bdf03f` (ADR), `dcaac7f`..`e39133e` (rebased pipeline)
+
 ## 2026-09-08 23:55 - DM
 
 Added direct local file execution support by exporting routing data as a
